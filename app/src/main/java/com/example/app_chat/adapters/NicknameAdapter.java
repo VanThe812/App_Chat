@@ -70,7 +70,7 @@ public class NicknameAdapter extends RecyclerView.Adapter<NicknameAdapter.Nickna
             }
 
             binding.imageProfile.setImageBitmap(getUserImage(user.image));
-            binding.getRoot().setOnClickListener(v -> nicknameListener.onNicknameListener(user.conversationId));
+            binding.getRoot().setOnClickListener(v -> nicknameListener.onNicknameListener(user));
         }
     }
 

@@ -34,4 +34,12 @@ public class Constants {
     public static final String KEY_COLLECTION_FRIEND = "friend";
     public static final String KEY_FRIEND_ID = "friendId";
     public static final String KEY_INVITATION_STATUS = "status";
+
+    public static final String KEY_COLLECTION_GROUP_CHAT = "groupChat";
+    public static final String KEY_NUMBER_PEOPLE = "numberPeople";
+    public static final String KEY_PEOPLE_ID = "peopleId";
+    public static final String KEY_PEOPLE_NAME = "peopleName";
+    public static final String KEY_PEOPLE_IMAGE = "peopleImage";
+    public static final String KEY_PEOPLE_NICKNAME = "peopleNickname";
+
 }

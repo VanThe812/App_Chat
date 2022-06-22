@@ -32,8 +32,9 @@
     <string name="success_background_update">Successful background update</string>
     <string name="set_a_nickname">Set a nickname</string>
     <string name="edit_nicknames">Edit nicknames</string>
-    <string name="nickname_Attention1">Only </string>
-    <string name="nickname_Attention2"> sees this nickname in conversation</string>
+    <string name="nickname_Attention1">Only</string>
+    <string name="nickname_Attention2">sees this nickname in conversation</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
+    <string name="success_nickname_change">Successful nickname change</string>
 </resources>

@@ -53,8 +53,6 @@ public class NicknameActivity extends AppCompatActivity implements NicknameListe
         loading(true);
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         List<User> users = new ArrayList<>();
-        // lấy ra data của tất cả người dùng
-//        .whereIn(Constants.KEY_EMAIL, friend)
         database.collection(Constants.KEY_COLLECTION_CONVERSATION)
                 .document(conversationId)
                 .get()
@@ -181,7 +179,7 @@ public class NicknameActivity extends AppCompatActivity implements NicknameListe
                 });
     }
 
-    private void openFeedbackDialog(String conversationId) {
+    private void openFeedbackDialog(User user) {
         final Dialog dialog = new Dialog(this);
         LayoutNicknameBinding layoutNicknameBinding;
         layoutNicknameBinding = LayoutNicknameBinding.inflate(getLayoutInflater());
@@ -199,28 +197,38 @@ public class NicknameActivity extends AppCompatActivity implements NicknameListe
         windowAttributes.gravity = Gravity.CENTER;
         window.setAttributes(windowAttributes);
 
-        int Attention1 = R.string.nickname_Attention1;
-        layoutNicknameBinding.textAttention.setText("Only Diu sees this nickname in conversation");
-        layoutNicknameBinding.inputNickname.setHint("Diu");
+        layoutNicknameBinding.textAttention.setText(getString(R.string.nickname_Attention1)+ " "+ user.name + " " +getString(R.string.nickname_Attention2));
+        layoutNicknameBinding.inputNickname.setHint(user.name);
 
         layoutNicknameBinding.buttonCancel.setOnClickListener(v -> dialog.dismiss());
         layoutNicknameBinding.buttonSave.setOnClickListener(v -> {
             FirebaseFirestore database = FirebaseFirestore.getInstance();
+            if(!layoutNicknameBinding.inputNickname.getText().toString().trim().isEmpty()) {
+                database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                        .document(user.conversationId)
+                        .get()
+                        .addOnCompleteListener(runnable -> {
+                            if(runnable.isSuccessful() && runnable.getResult() != null) {
+                                if(user.id.equals(runnable.getResult().get(Constants.KEY_RECEIVER_ID).toString())) {
+                                    DocumentReference documentReference =
+                                            database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                                                    .document(user.conversationId);
+                                    documentReference.update(
+                                            Constants.KEY_RECEIVER_NICKNAME, layoutNicknameBinding.inputNickname.getText().toString()
+                                    );
+                                }else if(user.id.equals(runnable.getResult().get(Constants.KEY_SENDER_ID))) {
+                                    DocumentReference documentReference =
+                                            database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                                                    .document(user.conversationId);
+                                    documentReference.update(
+                                            Constants.KEY_SENDER_NICKNAME, layoutNicknameBinding.inputNickname.getText().toString()
+                                    );
+                                }
+                            }
+                            showToast(getString(R.string.success_nickname_change));
+                        });
 
-//            DocumentReference documentReference =
-//                    database.collection(Constants.KEY_COLLECTION_CONVERSATION)
-//                            .document(conversationId);
-//            if()
-//            documentReference.update(
-//                    Constants.
-            database.collection(Constants.KEY_COLLECTION_CONVERSATION)
-                    .document(conversationId)
-                    .get()
-                    .addOnCompleteListener(runnable -> {
-                        if(runnable.isSuccessful() && runnable.getResult() != null) {
-//                            if()
-                        }
-                    });
+            }
 
 
         });
@@ -242,7 +250,7 @@ public class NicknameActivity extends AppCompatActivity implements NicknameListe
     }
 
     @Override
-    public void onNicknameListener(String conversationId) {
-        openFeedbackDialog(conversationId);
+    public void onNicknameListener(User user) {
+        openFeedbackDialog(user);
     }
 }
