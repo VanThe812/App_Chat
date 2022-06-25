@@ -16,6 +16,9 @@
         android:theme="@style/Theme.App_Chat"
         tools:targetApi="31">
         <activity
+            android:name=".activityes.CreateGroupChatActivity"
+            android:exported="false" />
+        <activity
             android:name=".activityes.SettingActivity"
             android:exported="false" />
         <activity

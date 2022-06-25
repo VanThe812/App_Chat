@@ -37,4 +37,11 @@
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="success_nickname_change">Successful nickname change</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="change_password">Change Password</string>
+    <string name="language">Language</string>
+    <string name="log_out">Log out</string>
+    <string name="name_group_not_left_blank">The group name cannot be left blank</string>
+    <string name="success_create_chat_group">Successfully created chat group</string>
+    <string name="create_a_group">Created a group</string>
 </resources>

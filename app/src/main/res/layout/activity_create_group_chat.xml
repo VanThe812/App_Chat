@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
     android:background="@color/white"
-    tools:context=".activityes.AddFriendActivity">
+    tools:context=".activityes.CreateGroupChatActivity">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imageBack"
@@ -20,7 +20,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:tint="@color/black"/>
-
+    <TextView
+        android:id="@+id/textSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save"
+        android:textColor="@color/blue"
+        android:textSize="@dimen/_18ssp"
+        android:textStyle="bold"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginRight="@dimen/_15sdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+    <EditText
+        android:id="@+id/inputNameGroup"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_28sdp"
+        android:background="@drawable/background_input_write"
+        android:layout_marginTop="@dimen/_5sdp"
+        android:layout_marginLeft="@dimen/_15sdp"
+        android:layout_marginRight="@dimen/_15sdp"
+        android:hint="Group Name (Required)"
+        android:imeOptions="actionNext"
+        android:importantForAutofill="no"
+        android:inputType="textEmailAddress"
+        android:paddingStart="@dimen/_16sdp"
+        android:paddingEnd="@dimen/_16sdp"
+        android:textColor="@color/primary_text"
+        android:textSize="@dimen/_13sdp"
+        app:layout_constraintStart_toStartOf="@id/imageBack"
+        app:layout_constraintTop_toBottomOf="@id/imageBack"/>
     <EditText
         android:id="@+id/inputSearch"
         android:layout_width="match_parent"
@@ -39,7 +69,7 @@
         android:textColor="@color/primary_text"
         android:textSize="@dimen/_13sdp"
         app:layout_constraintStart_toStartOf="@id/imageBack"
-        app:layout_constraintTop_toBottomOf="@id/imageBack"/>
+        app:layout_constraintTop_toBottomOf="@id/inputNameGroup"/>
 
 
     <FrameLayout
@@ -83,5 +113,6 @@
             android:visibility="gone" />
 
     </FrameLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

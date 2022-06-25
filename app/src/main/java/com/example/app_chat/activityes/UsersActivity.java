@@ -57,6 +57,9 @@ public class UsersActivity extends AppCompatActivity implements UserListener {
 
                     return true;
                 case R.id.action_user:
+                    startActivity(new Intent(getApplicationContext(), SettingActivity.class));
+                    overridePendingTransition(0, 0);
+                    finish();
                     return true;
             }
             return  false;
@@ -113,39 +116,7 @@ public class UsersActivity extends AppCompatActivity implements UserListener {
                     }
                 });
     }
-//    private List<Friend> getFriend(FirebaseFirestore database) {
-//        List<Friend> friends = new ArrayList<>();
-//        String UserId = preferenceManager.getString(Constants.KEY_USER_ID);
-//        // nếu bn là người gửi lời mời và trạng thái là 1 thì sẽ lấy id của ng kia
-//        database.collection(Constants.KEY_COLLECTION_FRIEND)
-//                .whereEqualTo(Constants.KEY_INVITATION_SENDER_ID, UserId)
-//                .whereEqualTo(Constants.KEY_INVITATION_STATUS, 1)
-//                .get()
-//                .addOnCompleteListener(task -> {
-//                    if(task.isSuccessful() && task.getResult() != null) {
-//                        for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-//                            Friend friend = new Friend();
-//                            friend.recipientId = documentSnapshot.getString(Constants.KEY_INVITATION_RECIPIENT_ID);
-//                            friends.add(friend);
-//                        }
-//                    }
-//                });
-//        // Nếu KEY_INVITATION_SENDER ko phải bn và trạng thái là 1 thì sẽ lấy id của ng kia
-//        database.collection(Constants.KEY_COLLECTION_FRIEND)
-//                .whereEqualTo(Constants.KEY_INVITATION_RECIPIENT_ID, UserId)
-//                .whereEqualTo(Constants.KEY_INVITATION_STATUS, 1)
-//                .get()
-//                .addOnCompleteListener(task -> {
-//                    if(task.isSuccessful() && task.getResult() != null) {
-//                        for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-//                            Friend friend = new Friend();
-//                            friend.recipientId = documentSnapshot.getString(Constants.KEY_INVITATION_SENDER_ID);
-//                            friends.add(friend);
-//                        }
-//                    }
-//                });
-//        return friends;
-//    }
+
     private void showErrorMessage() {
         binding.textErrorMessage.setText(String.format("%s", "No user available"));
         binding.textErrorMessage.setVisibility(View.VISIBLE);

@@ -141,6 +141,7 @@ public class ChatActivity extends AppCompatActivity {
             conversion.put(Constants.KEY_BACKGROUND, "");
             conversion.put(Constants.KEY_SENDER_NICKNAME , null);
             conversion.put(Constants.KEY_RECEIVER_NICKNAME, null);
+            conversion.put(Constants.KEY_COLLECTION_STATUS, "chat");
             addConversion(conversion);
         }
 

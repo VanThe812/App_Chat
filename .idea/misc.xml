@@ -12,23 +12,28 @@
         <entry key="app/src/main/res/drawable/background_icon.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/background_image.xml" value="0.2765" />
         <entry key="app/src/main/res/drawable/background_input.xml" value="0.2765" />
+        <entry key="app/src/main/res/drawable/background_input_write.xml" value="0.2145" />
         <entry key="app/src/main/res/drawable/background_received_message.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/background_sent_message.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/color_menu_selector.xml" value="0.298" />
         <entry key="app/src/main/res/drawable/ic_back.xml" value="0.139" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.271" />
+        <entry key="app/src/main/res/drawable/ic_sang_toi.xml" value="0.271" />
         <entry key="app/src/main/res/drawable/ic_user.xml" value="0.299" />
         <entry key="app/src/main/res/layout/activity_add_friend.xml" value="0.2758152173913043" />
         <entry key="app/src/main/res/layout/activity_chat.xml" value="0.276268115942029" />
+        <entry key="app/src/main/res/layout/activity_create_group_chat.xml" value="0.2758152173913043" />
         <entry key="app/src/main/res/layout/activity_info.xml" value="0.2758152173913043" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_main2.xml" value="0.2911458333333333" />
         <entry key="app/src/main/res/layout/activity_nickname.xml" value="0.2758152173913043" />
+        <entry key="app/src/main/res/layout/activity_setting.xml" value="0.2758152173913043" />
         <entry key="app/src/main/res/layout/activity_sign_in.xml" value="0.22" />
         <entry key="app/src/main/res/layout/activity_sign_up.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_users.xml" value="0.22" />
         <entry key="app/src/main/res/layout/item_container_friend.xml" value="0.2758152173913043" />
         <entry key="app/src/main/res/layout/item_container_nickname.xml" value="0.2758152173913043" />
+        <entry key="app/src/main/res/layout/item_container_number_group_chat.xml" value="0.2758152173913043" />
         <entry key="app/src/main/res/layout/item_container_received_message.xml" value="0.67" />
         <entry key="app/src/main/res/layout/item_container_recent_conversion.xml" value="0.1" />
         <entry key="app/src/main/res/layout/item_container_sent_message.xml" value="0.33" />
