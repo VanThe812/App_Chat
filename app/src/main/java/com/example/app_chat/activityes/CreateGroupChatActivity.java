@@ -117,6 +117,12 @@ public class CreateGroupChatActivity extends AppCompatActivity {
                             conversion.put(Constants.KEY_BACKGROUND, "");
                             conversion.put(Constants.KEY_SENDER_NICKNAME , null);
                             conversion.put(Constants.KEY_COLLECTION_STATUS, "group");
+                            for (int i = 0; i < UserSelected.size(); i++) {
+                                conversion.put(Constants.KEY_PEOPLE_ID+UserSelected.get(i).id, UserSelected.get(i).id);
+                                conversion.put(Constants.KEY_PEOPLE_NAME+UserSelected.get(i).id, UserSelected.get(i).name);
+                                conversion.put(Constants.KEY_PEOPLE_NICKNAME+UserSelected.get(i).id, "");
+                            }
+
 
                             database.collection(Constants.KEY_COLLECTION_CONVERSATION)
                                             .add(conversion);

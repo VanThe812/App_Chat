@@ -56,6 +56,7 @@ public class ChatActivity extends AppCompatActivity {
         init();
         setListeners();
         listenMessage();
+
     }
     // tải thông tin cơ bản của người nhận tin nhắn và đưa và obj user
     private void  loadReceiverDetails() {
@@ -115,66 +116,40 @@ public class ChatActivity extends AppCompatActivity {
                     }
                 });
     }
+    private void setListeners() {
+        binding.imageback.setOnClickListener(v -> onBackPressed());
+        binding.lauoutSend.setOnClickListener(v -> {
+            if(!binding.inputMessage.getText().toString().trim().isEmpty()) {
+                sendMessage();
+            }
+        });
 
-    private void sendMessage() {
-        //thêm vào db chat
-        HashMap<String, Object> message = new HashMap<>();
-        message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
-        message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
-        message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
-        message.put(Constants.KEY_TIMESTAMP, new Date());
-        database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
-
-        // Nếu cuộc chò chuyện này đã có thì update, còn không sẽ insert
-        if(conversionId != null){
-            updateConversion(binding.inputMessage.getText().toString());
-        }else{
-            HashMap<String, Object> conversion = new HashMap<>();
-            conversion.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
-            conversion.put(Constants.KEY_SENDER_NAME, preferenceManager.getString(Constants.KEY_NAME));
-            conversion.put(Constants.KEY_SENDER_IMAGE, preferenceManager.getString(Constants.KEY_SENDER_IMAGE));
-            conversion.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
-            conversion.put(Constants.KEY_RECEIVER_NAME, receiverUser.name);
-            conversion.put(Constants.KEY_RECEIVER_IMAGE, receiverUser.image);
-            conversion.put(Constants.KEY_LAST_MESSAGE, binding.inputMessage.getText().toString());
-            conversion.put(Constants.KEY_TIMESTAMP, new Date());
-            conversion.put(Constants.KEY_BACKGROUND, "");
-            conversion.put(Constants.KEY_SENDER_NICKNAME , null);
-            conversion.put(Constants.KEY_RECEIVER_NICKNAME, null);
-            conversion.put(Constants.KEY_COLLECTION_STATUS, "chat");
-            addConversion(conversion);
-        }
-
-        binding.inputMessage.setText(null);
-    }
-    private void updateConversion(String message) {
-        DocumentReference documentReference =
-                database.collection(Constants.KEY_COLLECTION_CONVERSATION).document(conversionId);
-        documentReference.update(
-                Constants.KEY_LAST_MESSAGE, message,
-                Constants.KEY_TIMESTAMP, new Date(),
-                Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID),
-                Constants.KEY_SENDER_NAME, preferenceManager.getString(Constants.KEY_NAME),
-                Constants.KEY_SENDER_IMAGE, preferenceManager.getString(Constants.KEY_IMAGE),
-                Constants.KEY_RECEIVER_ID, receiverUser.id,
-                Constants.KEY_RECEIVER_NAME, receiverUser.name,
-                Constants.KEY_RECEIVER_IMAGE, receiverUser.image,
-                Constants.KEY_SENDER_NICKNAME, null,
-                Constants.KEY_RECEIVER_NICKNAME, null
-        );
+        binding.imageInfo.setOnClickListener(view -> {
+            Intent intent = new Intent(getApplicationContext(), InfoActivity.class);
+            User user = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
+            intent.putExtra(Constants.KEY_USER, user);
+            startActivity(intent);
+        });
     }
     private void listenMessage() {
-        database.collection(Constants.KEY_COLLECTION_CHAT)
-                .whereEqualTo(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID))
-                .whereEqualTo(Constants.KEY_RECEIVER_ID, receiverUser.id)
-                .addSnapshotListener(eventListener);
-        database.collection(Constants.KEY_COLLECTION_CHAT)
-                .whereEqualTo(Constants.KEY_SENDER_ID, receiverUser.id)
-                .whereEqualTo(Constants.KEY_RECEIVER_ID, preferenceManager.getString(Constants.KEY_USER_ID))
-                .addSnapshotListener(eventListener);
-    }
+        if(receiverUser.Check == true) {
+            database.collection(Constants.KEY_COLLECTION_CHAT)
+                    .whereEqualTo(Constants.KEY_ID_GROUP, receiverUser.id)
+                    .addSnapshotListener(eventListener);
+        }else {
+            database.collection(Constants.KEY_COLLECTION_CHAT)
+                    .whereEqualTo(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID))
+                    .whereEqualTo(Constants.KEY_RECEIVER_ID, receiverUser.id)
+                    .addSnapshotListener(eventListener);
+            database.collection(Constants.KEY_COLLECTION_CHAT)
+                    .whereEqualTo(Constants.KEY_SENDER_ID, receiverUser.id)
+                    .whereEqualTo(Constants.KEY_RECEIVER_ID, preferenceManager.getString(Constants.KEY_USER_ID))
+                    .addSnapshotListener(eventListener);
+        }
 
+    }
     private final EventListener<QuerySnapshot> eventListener = (value, error) -> {
+        Toast.makeText(this, ""+receiverUser.Check, Toast.LENGTH_SHORT).show();
         if(error != null) {
             return;
         }
@@ -183,11 +158,20 @@ public class ChatActivity extends AppCompatActivity {
             for (DocumentChange documentChange : value.getDocumentChanges()) {
                 if(documentChange.getType() == DocumentChange.Type.ADDED) {
                     ChatMessage chatMessage = new ChatMessage();
-                    chatMessage.senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
-                    chatMessage.receiverId = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
-                    chatMessage.message = documentChange.getDocument().getString(Constants.KEY_MESSAGE);
-                    chatMessage.datatime = getReadableDateTIme(documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP));
-                    chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+                    if(receiverUser.Check == true) {
+                        chatMessage.senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
+//                        chatMessage.conversionId = documentChange.getDocument().getString(Constants.KEY_ID_GROUP);
+                        chatMessage.message = documentChange.getDocument().getString(Constants.KEY_MESSAGE);
+                        chatMessage.datatime = getReadableDateTIme(documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP));
+                        chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+                    }else {
+                        chatMessage.senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
+                        chatMessage.receiverId = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
+                        chatMessage.message = documentChange.getDocument().getString(Constants.KEY_MESSAGE);
+                        chatMessage.datatime = getReadableDateTIme(documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP));
+                        chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+                    }
+
                     chatMessages.add(chatMessage);
                 }
             }
@@ -205,22 +189,134 @@ public class ChatActivity extends AppCompatActivity {
             checkForConversion();
         }
     };
+    private void checkForConversion() {
+        if(chatMessages.size() != 0){
+            checkForConversionRemotely(
+                    preferenceManager.getString(Constants.KEY_USER_ID),
+                    receiverUser.id
+            );
+            checkForConversionRemotely(
+                    receiverUser.id,
+                    preferenceManager.getString(Constants.KEY_USER_ID)
+            );
+        }
+    }
 
+    private void checkForConversionRemotely(String senderId, String receiverId) {
+        database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                .whereEqualTo(Constants.KEY_SENDER_ID, senderId)
+                .whereEqualTo(Constants.KEY_RECEIVER_ID, receiverId)
+                .get()
+                .addOnCompleteListener(conversionOnCompleteListener);
+    }
+    private final OnCompleteListener<QuerySnapshot> conversionOnCompleteListener = task -> {
+        if(task.isSuccessful() && task.getResult() != null && task.getResult().getDocuments().size() > 0) {
+            DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
+            conversionId = documentSnapshot.getId();
+        }
+    };
+
+    private void sendMessage() {
+        //thêm vào db chat
+        HashMap<String, Object> message = new HashMap<>();
+        if(receiverUser.Check == true) {
+            message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
+            message.put(Constants.KEY_ID_GROUP, receiverUser.id);
+        }else {
+            message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
+            message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
+        }
+        
+        message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
+        message.put(Constants.KEY_TIMESTAMP, new Date());
+        database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
+
+        //
+        if(receiverUser.Check == true) {
+            updateConversion(binding.inputMessage.getText().toString());
+        }else {
+            if(conversionId != null){
+                updateConversion(binding.inputMessage.getText().toString());
+            }
+            else {
+                HashMap<String, Object> conversion = new HashMap<>();
+                conversion.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
+                conversion.put(Constants.KEY_SENDER_NAME, preferenceManager.getString(Constants.KEY_NAME));
+                conversion.put(Constants.KEY_SENDER_IMAGE, preferenceManager.getString(Constants.KEY_SENDER_IMAGE));
+                conversion.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
+                conversion.put(Constants.KEY_RECEIVER_NAME, receiverUser.name);
+                conversion.put(Constants.KEY_RECEIVER_IMAGE, receiverUser.image);
+                conversion.put(Constants.KEY_LAST_MESSAGE, binding.inputMessage.getText().toString());
+                conversion.put(Constants.KEY_TIMESTAMP, new Date());
+                conversion.put(Constants.KEY_BACKGROUND, "");
+                conversion.put(Constants.KEY_SENDER_NICKNAME , null);
+                conversion.put(Constants.KEY_RECEIVER_NICKNAME, null);
+                conversion.put(Constants.KEY_COLLECTION_STATUS, "chat");
+                addConversion(conversion);
+            }
+        }
+        binding.inputMessage.setText(null);
+    }
+    private void updateConversion(String message) {
+        if (receiverUser.Check == false) {
+            DocumentReference documentReference =
+                    database.collection(Constants.KEY_COLLECTION_CONVERSATION).document(conversionId);
+            documentReference.update(
+                    Constants.KEY_LAST_MESSAGE, message,
+                    Constants.KEY_TIMESTAMP, new Date(),
+                    Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID),
+                    Constants.KEY_SENDER_NAME, preferenceManager.getString(Constants.KEY_NAME),
+                    Constants.KEY_SENDER_IMAGE, preferenceManager.getString(Constants.KEY_IMAGE),
+                    Constants.KEY_RECEIVER_ID, receiverUser.id,
+                    Constants.KEY_RECEIVER_NAME, receiverUser.name,
+                    Constants.KEY_RECEIVER_IMAGE, receiverUser.image,
+                    Constants.KEY_SENDER_NICKNAME, null,
+                    Constants.KEY_RECEIVER_NICKNAME, null
+            );
+        }else if(receiverUser.Check == true) {
+
+            database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                    .whereEqualTo(Constants.KEY_ID_GROUP, receiverUser.id)
+                    .addSnapshotListener((value, error) -> {
+                        if(error != null) {
+                            return;
+                        }
+                        if(value != null) {
+                            for (DocumentChange documentChange : value.getDocumentChanges()) {
+                                if(documentChange.getType() == DocumentChange.Type.ADDED) {
+                                    DocumentReference documentReference =
+                                            database.collection(Constants.KEY_COLLECTION_CONVERSATION).document(documentChange.getDocument().getId());
+                                    documentReference.update(
+                                            Constants.KEY_LAST_MESSAGE, message,
+                                            Constants.KEY_TIMESTAMP, new Date(),
+                                            Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID)
+                                    );
+                                }
+                            }
+                        }
+                    });
+        }
+
+    }
+
+
+    private void addConversion(HashMap<String, Object> conversion) {
+        database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                .add(conversion)
+                .addOnSuccessListener(documentReference -> conversionId = documentReference.getId());
+
+    }
+
+    // ------------------------------------------------------
+    private String getReadableDateTIme(Date date) {
+        return new SimpleDateFormat("MMMM dd, YYYY - hh:mm a", Locale.getDefault()).format(date);
+    }
     private Bitmap getBitmapFromEncodedString(String encodedImage) {
         byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
 
-
-
-    private void setListeners() {
-        binding.imageback.setOnClickListener(v -> onBackPressed());
-        binding.lauoutSend.setOnClickListener(v -> {
-            if(!binding.inputMessage.getText().toString().trim().isEmpty()) {
-                sendMessage();
-            }
-        });
-//        binding.imageMore.setOnClickListener(view -> {
+    //        binding.imageMore.setOnClickListener(view -> {
 //            binding.imageMore.setVisibility(View.INVISIBLE);
 //            binding.imageCamera.setVisibility(View.VISIBLE);
 //            binding.imageImage.setVisibility(View.VISIBLE);
@@ -252,54 +348,5 @@ public class ChatActivity extends AppCompatActivity {
 //                constraintSet.applyTo(constraintLayout);
 //            }
 //        });
-        binding.imageInfo.setOnClickListener(view -> {
-            Intent intent = new Intent(getApplicationContext(), InfoActivity.class);
-            User user = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
-            intent.putExtra(Constants.KEY_USER, user);
-            startActivity(intent);
-        });
-    }
-
-    private void addConversion(HashMap<String, Object> conversion) {
-        database.collection(Constants.KEY_COLLECTION_CONVERSATION)
-                .add(conversion)
-                .addOnSuccessListener(documentReference -> conversionId = documentReference.getId());
-
-    }
-
-
-
-    private void checkForConversion() {
-        if(chatMessages.size() != 0){
-            checkForConversionRemotely(
-                    preferenceManager.getString(Constants.KEY_USER_ID),
-                    receiverUser.id
-            );
-            checkForConversionRemotely(
-                    receiverUser.id,
-                    preferenceManager.getString(Constants.KEY_USER_ID)
-            );
-        }
-    }
-
-    private String getReadableDateTIme(Date date) {
-        return new SimpleDateFormat("MMMM dd, YYYY - hh:mm a", Locale.getDefault()).format(date);
-    }
-
-    private void checkForConversionRemotely(String senderId, String receiverId) {
-        database.collection(Constants.KEY_COLLECTION_CONVERSATION)
-                .whereEqualTo(Constants.KEY_SENDER_ID, senderId)
-                .whereEqualTo(Constants.KEY_RECEIVER_ID, receiverId)
-                .get()
-                .addOnCompleteListener(conversionOnCompleteListener);
-
-    }
-
-    private final OnCompleteListener<QuerySnapshot> conversionOnCompleteListener = task -> {
-        if(task.isSuccessful() && task.getResult() != null && task.getResult().getDocuments().size() > 0) {
-            DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
-            conversionId = documentSnapshot.getId();
-        }
-    };
 
 }

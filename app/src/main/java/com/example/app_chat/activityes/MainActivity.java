@@ -23,6 +23,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -100,11 +101,21 @@ public class MainActivity extends AppCompatActivity implements ConversionListene
 
     private void listenConversations() {
         database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                .whereEqualTo(Constants.KEY_COLLECTION_STATUS, "chat")
                 .whereEqualTo(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID))
                 .addSnapshotListener(eventListener);
         database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                .whereEqualTo(Constants.KEY_COLLECTION_STATUS, "chat")
                 .whereEqualTo(Constants.KEY_RECEIVER_ID, preferenceManager.getString(Constants.KEY_USER_ID))
                 .addSnapshotListener(eventListener);
+        try {
+            database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                    .whereEqualTo(Constants.KEY_COLLECTION_STATUS, "group")
+                    .whereEqualTo(Constants.KEY_PEOPLE_ID+preferenceManager.getString(Constants.KEY_USER_ID), preferenceManager.getString(Constants.KEY_USER_ID))
+                    .addSnapshotListener(eventListener);
+        }catch (Exception e) {}
+
+
     }
     // khi có sự thay đổi của db, lập tức chạy đoạn code
     private final EventListener<QuerySnapshot> eventListener = (value, error) -> {
@@ -140,11 +151,17 @@ public class MainActivity extends AppCompatActivity implements ConversionListene
                             chatMessage.conversionImage = Constants.IMAGE_AVATAR_DEFAULT;
                         }
 
-                    }else if(documentChange.getDocument().getString(Constants.KEY_COLLECTION_STATUS).equals("group")) {
+                    }
+                    else if(documentChange.getDocument().getString(Constants.KEY_COLLECTION_STATUS).equals("group")) {
+
                         chatMessage.conversionName = documentChange.getDocument().getString(Constants.KEY_NAME_GROUP);
                         chatMessage.conversionImage = documentChange.getDocument().getString(Constants.KEY_IMAGE_GROUP);
                         chatMessage.conversionId = documentChange.getDocument().getString(Constants.KEY_ID_GROUP);
-                        chatMessage.message = documentChange.getDocument().getString(Constants.KEY_SENDER_NAME) + ": " + documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
+                        if(preferenceManager.getString(Constants.KEY_USER_ID).equals(documentChange.getDocument().getString(Constants.KEY_SENDER_ID))) {
+                            chatMessage.message = "You: " + documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
+                        }else {
+                            chatMessage.message = documentChange.getDocument().getString(Constants.KEY_SENDER_NAME) + ": " + documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
+                        }
                     }
                     chatMessage.statusMessage = documentChange.getDocument().getString(Constants.KEY_COLLECTION_STATUS);
                     chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
@@ -153,12 +170,44 @@ public class MainActivity extends AppCompatActivity implements ConversionListene
                 } // nếu có thay đổi của dữ liệu trong 1 bản ghi nào đó
                 else if(documentChange.getType() == DocumentChange.Type.MODIFIED) {
                     for (int i = 0; i < conversation.size(); i++) {
-                        String senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
-                        String receiverId = documentChange.getDocument().getString((Constants.KEY_RECEIVER_ID));
-                        if(conversation.get(i).senderId.equals(senderId) && conversation.get(i).receiverId.equals(receiverId)) {
-                            conversation.get(i).message = documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
-                            conversation.get(i).dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
-                            break;
+
+                        if(conversation.get(i).statusMessage.equals("chat")) {
+
+                            try{
+                                String senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
+                                String receiverId = documentChange.getDocument().getString((Constants.KEY_RECEIVER_ID));
+                                if(conversation.get(i).senderId.equals(senderId) && conversation.get(i).receiverId.equals(receiverId)) {
+                                    if(preferenceManager.getString(Constants.KEY_USER_ID).equals(senderId)) {
+                                        conversation.get(i).message = "You: " + documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
+                                    }else {
+                                        conversation.get(i).message = documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
+                                    }
+                                     conversation.get(i).dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+                                    break;
+                                }
+                            }catch (Exception e) {
+
+                            }
+
+                        }
+                        if(conversation.get(i).statusMessage.equals("group")) {
+                            try{
+                                String senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
+                                String id = conversation.get(i).senderId;
+
+                                if(id.equals(senderId)) {
+                                    if(preferenceManager.getString(Constants.KEY_USER_ID).equals(senderId)) {
+                                        conversation.get(i).message = "You: " + documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
+                                    }else {
+                                        conversation.get(i).message = documentChange.getDocument().getString(Constants.KEY_SENDER_NAME) + ": " + documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
+                                    }
+                                    conversation.get(i).dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+                                    break;
+                                }
+                            }catch (Exception e) {
+
+                            }
+
                         }
                     }
                 }
@@ -170,6 +219,7 @@ public class MainActivity extends AppCompatActivity implements ConversionListene
             binding.progressBar.setVisibility(View.GONE);
         }
     };
+
     private void createGroupChat() {
         Intent intent = new Intent(getApplicationContext(), CreateGroupChatActivity.class);
 
