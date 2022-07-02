@@ -44,4 +44,6 @@
     <string name="name_group_not_left_blank">The group name cannot be left blank</string>
     <string name="success_create_chat_group">Successfully created chat group</string>
     <string name="create_a_group">Created a group</string>
+    <string name="are_you_sure_change_profile_picture">Are you sure you want to change your profile picture?</string>
+    <string name="ok">Ok</string>
 </resources>

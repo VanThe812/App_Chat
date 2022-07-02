@@ -10,7 +10,6 @@
         android:id="@+id/textName"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:text="@string/add_friends"
         android:layout_marginStart="@dimen/_5sdp"
         android:textSize="@dimen/_12ssp"
         app:layout_constraintStart_toEndOf="@id/imageProfile"

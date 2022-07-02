@@ -1,12 +1,19 @@
 package com.example.app_chat.activityes;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Base64;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.app_chat.R;
@@ -17,11 +24,18 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.concurrent.Delayed;
+import java.util.concurrent.TimeUnit;
 
 public class SettingActivity extends AppCompatActivity {
     private ActivitySettingBinding binding;
     private PreferenceManager preferenceManager;
+    private String encodedImage;
+    private FirebaseFirestore database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +50,7 @@ public class SettingActivity extends AppCompatActivity {
     private void init() {
         binding.bottomNav.setSelectedItemId(R.id.action_user);
         preferenceManager = new PreferenceManager(getApplicationContext());
+        database = FirebaseFirestore.getInstance();
     }
     private void setListeners() {
         binding.bottomNav.setOnNavigationItemSelectedListener(item -> {
@@ -56,6 +71,66 @@ public class SettingActivity extends AppCompatActivity {
             return  false;
         });
         binding.buttonLogout.setOnClickListener(v -> signOut());
+        binding.imageProfile.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+            builder.setTitle(R.string.confirm);
+            builder.setMessage(R.string.are_you_sure_change_profile_picture);
+            builder.setCancelable(false);
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    pickImage.launch(intent);
+                    dialogInterface.dismiss();
+                }
+            });
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Toast.makeText(getApplicationContext(), R.string.cancel, Toast.LENGTH_SHORT).show();
+                    dialogInterface.dismiss();
+                }
+            });
+            builder.show();
+
+        });
+    }
+    private final ActivityResultLauncher<Intent> pickImage = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if(result.getResultCode() == RESULT_OK) {
+                    if(result.getData() != null) {
+                        Uri imageUri = result.getData().getData();
+                        try {
+                            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+                            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                            binding.imageProfile.setImageBitmap(bitmap);
+                            encodedImage = encodeImage(bitmap);
+
+                            DocumentReference documentReference =
+                                    database.collection(Constants.KEY_COLLECTION_USERS)
+                                            .document(preferenceManager.getString(Constants.KEY_USER_ID));
+                            documentReference.update(
+                                    Constants.KEY_IMAGE, encodedImage
+                            );
+                            preferenceManager.putString(Constants.KEY_IMAGE, encodedImage);
+                            showToast("Ban da cap nhat anh dai dien thanh cong");
+                        }catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+    );
+    private String encodeImage(Bitmap bitmap) {
+        int previewWidth = 150;
+        int previewHeight = bitmap.getHeight() * previewWidth / bitmap.getWidth();
+        Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, previewWidth, previewHeight, false);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        previewBitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
     }
     private void loadUserDetails() {
         binding.textName.setText(preferenceManager.getString(Constants.KEY_NAME));
