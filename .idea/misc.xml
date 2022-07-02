@@ -34,7 +34,7 @@
         <entry key="app/src/main/res/layout/item_container_friend.xml" value="0.2758152173913043" />
         <entry key="app/src/main/res/layout/item_container_nickname.xml" value="0.2758152173913043" />
         <entry key="app/src/main/res/layout/item_container_number_group_chat.xml" value="0.2758152173913043" />
-        <entry key="app/src/main/res/layout/item_container_received_message.xml" value="0.67" />
+        <entry key="app/src/main/res/layout/item_container_received_message.xml" value="0.33" />
         <entry key="app/src/main/res/layout/item_container_recent_conversion.xml" value="0.1" />
         <entry key="app/src/main/res/layout/item_container_sent_message.xml" value="0.33" />
         <entry key="app/src/main/res/layout/item_container_user.xml" value="0.33" />

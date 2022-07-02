@@ -6,6 +6,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="@dimen/_4sdp">
 
+    <TextView
+        android:id="@+id/textName"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:textSize="@dimen/_13ssp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
     <com.makeramen.roundedimageview.RoundedImageView
         android:layout_width="@dimen/_25sdp"
         android:layout_height="@dimen/_25sdp"
@@ -14,6 +21,7 @@
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="@id/textMessage"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textName"
         app:riv_oval="true"/>
 
     <TextView
@@ -31,7 +39,7 @@
         android:textColor="@color/white"
         android:textSize="@dimen/_13ssp"
         app:layout_constraintStart_toEndOf="@id/imageProfile"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textName"
         app:layout_constraintWidth_percent="0.75"/>
 
     <TextView

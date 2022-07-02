@@ -46,6 +46,7 @@ public class ChatActivity extends AppCompatActivity {
     private FirebaseFirestore database;
     private String conversionId = null;
     private ConstraintLayout constraintLayout;
+    private String nicknameUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +62,7 @@ public class ChatActivity extends AppCompatActivity {
     // tải thông tin cơ bản của người nhận tin nhắn và đưa và obj user
     private void  loadReceiverDetails() {
         receiverUser = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
+        Toast.makeText(this, receiverUser.receiverNickname, Toast.LENGTH_SHORT).show();
         if(receiverUser.receiverNickname != null) {
             binding.textName.setText(receiverUser.receiverNickname);
         }else {
@@ -149,7 +151,7 @@ public class ChatActivity extends AppCompatActivity {
 
     }
     private final EventListener<QuerySnapshot> eventListener = (value, error) -> {
-        Toast.makeText(this, ""+receiverUser.Check, Toast.LENGTH_SHORT).show();
+
         if(error != null) {
             return;
         }
@@ -164,6 +166,14 @@ public class ChatActivity extends AppCompatActivity {
                         chatMessage.message = documentChange.getDocument().getString(Constants.KEY_MESSAGE);
                         chatMessage.datatime = getReadableDateTIme(documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP));
                         chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+
+                        chatMessage.senderName = documentChange.getDocument().getString(Constants.KEY_SENDER_NAME);
+                        chatMessage.senderImage = documentChange.getDocument().getString(Constants.KEY_SENDER_IMAGE);
+                        chatMessage.senderNickname = documentChange.getDocument().getString(Constants.KEY_SENDER_NICKNAME);
+
+
+
+
                     }else {
                         chatMessage.senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
                         chatMessage.receiverId = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
@@ -220,16 +230,36 @@ public class ChatActivity extends AppCompatActivity {
         //thêm vào db chat
         HashMap<String, Object> message = new HashMap<>();
         if(receiverUser.Check == true) {
+            String textMessage = binding.inputMessage.getText().toString();
             message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
             message.put(Constants.KEY_ID_GROUP, receiverUser.id);
+            message.put(Constants.KEY_SENDER_NAME, preferenceManager.getString(Constants.KEY_NAME));
+            database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                    .whereEqualTo(Constants.KEY_ID_GROUP, receiverUser.id)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                try {
+                                    message.put(Constants.KEY_SENDER_NICKNAME, documentSnapshot.getString(Constants.KEY_PEOPLE_NICKNAME+preferenceManager.getString(Constants.KEY_USER_ID)));
+
+                                }catch (Exception e) {}
+                                message.put(Constants.KEY_SENDER_IMAGE, preferenceManager.getString(Constants.KEY_IMAGE));
+                                message.put(Constants.KEY_MESSAGE, textMessage);
+                                message.put(Constants.KEY_TIMESTAMP, new Date());
+                                database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
+
+                            }
+                        }
+                    });
+
         }else {
             message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
             message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
+            message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
+            message.put(Constants.KEY_TIMESTAMP, new Date());
+            database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
         }
-        
-        message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
-        message.put(Constants.KEY_TIMESTAMP, new Date());
-        database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
 
         //
         if(receiverUser.Check == true) {
@@ -284,12 +314,15 @@ public class ChatActivity extends AppCompatActivity {
                         if(value != null) {
                             for (DocumentChange documentChange : value.getDocumentChanges()) {
                                 if(documentChange.getType() == DocumentChange.Type.ADDED) {
+
                                     DocumentReference documentReference =
                                             database.collection(Constants.KEY_COLLECTION_CONVERSATION).document(documentChange.getDocument().getId());
                                     documentReference.update(
                                             Constants.KEY_LAST_MESSAGE, message,
                                             Constants.KEY_TIMESTAMP, new Date(),
-                                            Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID)
+                                            Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID),
+                                            Constants.KEY_SENDER_NAME, preferenceManager.getString(Constants.KEY_NAME),
+                                            Constants.KEY_SENDER_NICKNAME, documentChange.getDocument().get(Constants.KEY_PEOPLE_NICKNAME+preferenceManager.getString(Constants.KEY_USER_ID))
                                     );
                                 }
                             }

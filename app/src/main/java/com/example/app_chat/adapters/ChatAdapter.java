@@ -1,6 +1,8 @@
 package com.example.app_chat.adapters;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -12,6 +14,7 @@ import com.example.app_chat.databinding.ItemContainerSentMessageBinding;
 import com.example.app_chat.databinding.ItemContainerUserBinding;
 import com.example.app_chat.models.ChatMessage;
 import com.example.app_chat.models.User;
+import com.example.app_chat.utilities.Constants;
 
 import java.util.List;
 
@@ -90,7 +93,26 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         void setData(ChatMessage chatMessage, Bitmap receiverProfileImage)  {
             binding.textMessage.setText(chatMessage.message);
             binding.textDateTime.setText(chatMessage.datatime);
-            binding.imageProfile.setImageBitmap(receiverProfileImage);
+            if(chatMessage.senderName != "" && chatMessage.senderName != null) {
+                if (chatMessage.senderImage == "" || chatMessage == null) {
+                    binding.imageProfile.setImageBitmap(getUserImage(Constants.IMAGE_AVATAR_DEFAULT));
+                }else {
+                    binding.imageProfile.setImageBitmap(getUserImage(chatMessage.senderImage));
+                }
+                if (chatMessage.senderNickname != "") {
+                    binding.textName.setText(chatMessage.senderNickname);
+                }else {
+                    binding.textName.setText(chatMessage.senderName);
+                }
+            }else {
+                binding.imageProfile.setImageBitmap(receiverProfileImage);
+            }
+
+        }
+        private Bitmap getUserImage(String encodedImage) {
+            byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
+            return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         }
     }
+
 }

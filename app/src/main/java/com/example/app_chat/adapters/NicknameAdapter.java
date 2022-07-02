@@ -61,7 +61,7 @@ public class NicknameAdapter extends RecyclerView.Adapter<NicknameAdapter.Nickna
         }
         void setNicknameData(User user) {
 
-            if(user.receiverNickname == null) {
+            if(user.receiverNickname == null || user.receiverNickname == "") {
                 binding.textNickname.setText(user.name);
                 binding.textName.setText(R.string.set_a_nickname);
             }else {

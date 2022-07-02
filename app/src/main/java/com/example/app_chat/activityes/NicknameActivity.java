@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -22,6 +23,7 @@ import com.example.app_chat.utilities.Constants;
 import com.example.app_chat.utilities.PreferenceManager;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,7 @@ public class NicknameActivity extends AppCompatActivity implements NicknameListe
     private ActivityNicknameBinding binding;
     private PreferenceManager preferenceManager;
     private String conversationId;
+    private Boolean status;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,8 @@ public class NicknameActivity extends AppCompatActivity implements NicknameListe
     private void init() {
         preferenceManager = new PreferenceManager(getApplicationContext());
         conversationId = getIntent().getExtras().getString("conversationId");
+        status = getIntent().getExtras().getBoolean("status");
+//        Toast.makeText(this, ""+status, Toast.LENGTH_SHORT).show();
     }
     private void setListeners() {
         binding.imageBack.setOnClickListener(view -> onBackPressed());
@@ -53,56 +58,115 @@ public class NicknameActivity extends AppCompatActivity implements NicknameListe
         loading(true);
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         List<User> users = new ArrayList<>();
-        database.collection(Constants.KEY_COLLECTION_CONVERSATION)
-                .document(conversationId)
-                .get()
-                .addOnCompleteListener(runnable -> {
-                    if(runnable.isSuccessful() && runnable.getResult() != null) {
-                        User user = new User();
-                        user.id = runnable.getResult().get(Constants.KEY_SENDER_ID).toString();
-                        user.name = runnable.getResult().get(Constants.KEY_SENDER_NAME).toString();
-                        try {
-                            user.image = runnable.getResult().get(Constants.KEY_SENDER_IMAGE).toString();
-                        }catch (Exception e)
-                        {
-                            user.image = Constants.IMAGE_AVATAR_DEFAULT;
+        if (status==false) {
+            database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                    .document(conversationId)
+                    .get()
+                    .addOnCompleteListener(runnable -> {
+                        if(runnable.isSuccessful() && runnable.getResult() != null) {
+                            User user = new User();
+                            user.id = runnable.getResult().get(Constants.KEY_SENDER_ID).toString();
+                            user.name = runnable.getResult().get(Constants.KEY_SENDER_NAME).toString();
+                            try {
+                                user.image = runnable.getResult().get(Constants.KEY_SENDER_IMAGE).toString();
+                            }catch (Exception e)
+                            {
+                                user.image = Constants.IMAGE_AVATAR_DEFAULT;
 
-                        }
-                        try {
-                            user.receiverNickname = runnable.getResult().get(Constants.KEY_SENDER_NICKNAME).toString();
-                        }catch (Exception e) {
-                            user.receiverNickname = null;
-                        }
-                        user.conversationId = conversationId;
-                        users.add(user);
+                            }
+                            try {
+                                user.receiverNickname = runnable.getResult().get(Constants.KEY_SENDER_NICKNAME).toString();
+                            }catch (Exception e) {
+                                user.receiverNickname = null;
+                            }
+                            user.conversationId = conversationId;
+                            user.Check = false;
+                            users.add(user);
 
-                        User user2 = new User();
-                        user2.id = runnable.getResult().get(Constants.KEY_RECEIVER_ID).toString();
-                        user2.name = runnable.getResult().get(Constants.KEY_RECEIVER_NAME).toString();
-                        try {
-                            user2.image = runnable.getResult().get(Constants.KEY_RECEIVER_IMAGE).toString();
-                        }catch (Exception e)
-                        {
-                            user2.image = Constants.IMAGE_AVATAR_DEFAULT;
+                            User user2 = new User();
+                            user2.id = runnable.getResult().get(Constants.KEY_RECEIVER_ID).toString();
+                            user2.name = runnable.getResult().get(Constants.KEY_RECEIVER_NAME).toString();
+                            try {
+                                user2.image = runnable.getResult().get(Constants.KEY_RECEIVER_IMAGE).toString();
+                            }catch (Exception e)
+                            {
+                                user2.image = Constants.IMAGE_AVATAR_DEFAULT;
 
+                            }
+                            try {
+                                user2.receiverNickname = runnable.getResult().get(Constants.KEY_RECEIVER_NICKNAME).toString();
+                            }catch (Exception e) {
+                                user2.receiverNickname = null;
+                            }
+                            user2.conversationId = conversationId;
+                            user2.Check = false;
+                            users.add(user2);
                         }
-                        try {
-                            user2.receiverNickname = runnable.getResult().get(Constants.KEY_RECEIVER_NICKNAME).toString();
-                        }catch (Exception e) {
-                            user2.receiverNickname = null;
+                        if(users.size() > 0){
+                            NicknameAdapter nicknameAdapter = new NicknameAdapter(users, this);
+                            binding.NicknameRCV.setAdapter(nicknameAdapter);
+                            binding.NicknameRCV.setVisibility(View.VISIBLE);
+                            loading(false);
+                        }else {
+                            showErrorMessage();
                         }
-                        user2.conversationId = conversationId;
-                        users.add(user2);
-                    }
-                    if(users.size() > 0){
-                        NicknameAdapter nicknameAdapter = new NicknameAdapter(users, this);
-                        binding.NicknameRCV.setAdapter(nicknameAdapter);
-                        binding.NicknameRCV.setVisibility(View.VISIBLE);
-                        loading(false);
-                    }else {
-                        showErrorMessage();
-                    }
-                });
+                    });
+        }else {
+            database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                    .document(conversationId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if(task.isSuccessful() && task.getResult() != null) {
+
+                            database.collection(Constants.KEY_COLLECTION_USERS)
+                                    .get()
+                                    .addOnCompleteListener(task1 -> {
+                                        if(task1.isSuccessful() && task1.getResult() != null) {
+                                            for (QueryDocumentSnapshot documentSnapshot : task1.getResult()) {
+
+                                                try{
+                                                    User user = new User();
+                                                    if(task.getResult().get(Constants.KEY_PEOPLE_ID+documentSnapshot.getId()).equals(documentSnapshot.getId())) {
+                                                        user.id = documentSnapshot.getId();
+                                                        user.name = documentSnapshot.getString(Constants.KEY_NAME);
+                                                        try {
+                                                            user.image = documentSnapshot.getString(Constants.KEY_IMAGE);
+                                                        }catch (Exception e)
+                                                        {
+                                                            user.image = Constants.IMAGE_AVATAR_DEFAULT;
+                                                        }
+                                                        try {
+                                                            user.receiverNickname = task.getResult().get(Constants.KEY_PEOPLE_NICKNAME+documentSnapshot.getId()).toString();
+                                                        }catch (Exception e) {
+                                                            user.receiverNickname = null;
+                                                        }
+                                                    }
+                                                    user.conversationId = conversationId;
+                                                    user.Check = true;
+                                                    users.add(user);
+
+                                                }catch (Exception e) {}
+                                            }
+                                            if(users.size() > 0){
+                                                NicknameAdapter nicknameAdapter = new NicknameAdapter(users, this);
+                                                binding.NicknameRCV.setAdapter(nicknameAdapter);
+                                                binding.NicknameRCV.setVisibility(View.VISIBLE);
+                                                loading(false);
+                                            }else {
+                                                showErrorMessage();
+                                            }
+                                        }
+                                    });
+
+//                            int numberPeople = Integer.parseInt(task.getResult().get(Constants.KEY_NUMBER_PEOPLE).toString());
+//                            for ()
+//                            Toast.makeText(this, ""+task.getResult().toString(), Toast.LENGTH_SHORT).show();
+                        }
+
+
+                    });
+        }
+
     }
 
     private void openFeedbackDialog(User user) {
@@ -135,23 +199,35 @@ public class NicknameActivity extends AppCompatActivity implements NicknameListe
                         .get()
                         .addOnCompleteListener(runnable -> {
                             if(runnable.isSuccessful() && runnable.getResult() != null) {
-                                if(user.id.equals(runnable.getResult().get(Constants.KEY_RECEIVER_ID).toString())) {
+                                if(user.Check == false) {
+                                    if(user.id.equals(runnable.getResult().get(Constants.KEY_RECEIVER_ID).toString())) {
+                                        DocumentReference documentReference =
+                                                database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                                                        .document(user.conversationId);
+                                        documentReference.update(
+                                                Constants.KEY_RECEIVER_NICKNAME, layoutNicknameBinding.inputNickname.getText().toString()
+                                        );
+                                    }else if(user.id.equals(runnable.getResult().get(Constants.KEY_SENDER_ID))) {
+                                        DocumentReference documentReference =
+                                                database.collection(Constants.KEY_COLLECTION_CONVERSATION)
+                                                        .document(user.conversationId);
+                                        documentReference.update(
+                                                Constants.KEY_SENDER_NICKNAME, layoutNicknameBinding.inputNickname.getText().toString()
+                                        );
+                                    }
+                                }else {
                                     DocumentReference documentReference =
                                             database.collection(Constants.KEY_COLLECTION_CONVERSATION)
                                                     .document(user.conversationId);
                                     documentReference.update(
-                                            Constants.KEY_RECEIVER_NICKNAME, layoutNicknameBinding.inputNickname.getText().toString()
-                                    );
-                                }else if(user.id.equals(runnable.getResult().get(Constants.KEY_SENDER_ID))) {
-                                    DocumentReference documentReference =
-                                            database.collection(Constants.KEY_COLLECTION_CONVERSATION)
-                                                    .document(user.conversationId);
-                                    documentReference.update(
-                                            Constants.KEY_SENDER_NICKNAME, layoutNicknameBinding.inputNickname.getText().toString()
+                                            Constants.KEY_PEOPLE_NICKNAME+user.id, layoutNicknameBinding.inputNickname.getText().toString()
                                     );
                                 }
+                                showToast(getString(R.string.success_nickname_change));
+                                dialog.dismiss();
+                                getUsers();
                             }
-                            showToast(getString(R.string.success_nickname_change));
+
                         });
 
             }

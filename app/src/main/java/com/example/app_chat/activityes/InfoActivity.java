@@ -49,6 +49,7 @@ public class InfoActivity extends AppCompatActivity {
     }
     private void  loadUserDetails() {
         user = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
+
         binding.textName.setText(user.name);
         byte[] bytes = Base64.decode(user.image, Base64.DEFAULT);
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
@@ -65,6 +66,7 @@ public class InfoActivity extends AppCompatActivity {
         binding.buttonNickname.setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), NicknameActivity.class);
             intent.putExtra("conversationId", user.conversationId);
+            intent.putExtra("status", user.Check);
             startActivity(intent);
         });
 

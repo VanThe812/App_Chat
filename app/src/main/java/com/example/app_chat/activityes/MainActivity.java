@@ -160,7 +160,11 @@ public class MainActivity extends AppCompatActivity implements ConversionListene
                         if(preferenceManager.getString(Constants.KEY_USER_ID).equals(documentChange.getDocument().getString(Constants.KEY_SENDER_ID))) {
                             chatMessage.message = "You: " + documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
                         }else {
-                            chatMessage.message = documentChange.getDocument().getString(Constants.KEY_SENDER_NAME) + ": " + documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
+                            if(documentChange.getDocument().getString(Constants.KEY_SENDER_NICKNAME) != "" && documentChange.getDocument().getString(Constants.KEY_SENDER_NICKNAME) != null) {
+                                chatMessage.message = documentChange.getDocument().getString(Constants.KEY_SENDER_NICKNAME) + ": " + documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
+                            }else {
+                                chatMessage.message = documentChange.getDocument().getString(Constants.KEY_SENDER_NAME) + ": " + documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
+                            }
                         }
                     }
                     chatMessage.statusMessage = documentChange.getDocument().getString(Constants.KEY_COLLECTION_STATUS);
