@@ -10,8 +10,10 @@
         android:id="@+id/textName"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:textSize="@dimen/_13ssp"
-        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/add_friends"
+        android:layout_marginStart="@dimen/_5sdp"
+        android:textSize="@dimen/_12ssp"
+        app:layout_constraintStart_toEndOf="@id/imageProfile"
         app:layout_constraintTop_toTopOf="parent"/>
     <com.makeramen.roundedimageview.RoundedImageView
         android:layout_width="@dimen/_25sdp"
