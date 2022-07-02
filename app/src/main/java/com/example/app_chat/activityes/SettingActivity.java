@@ -2,17 +2,21 @@ package com.example.app_chat.activityes;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Toast;
 
@@ -28,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +41,8 @@ public class SettingActivity extends AppCompatActivity {
     private PreferenceManager preferenceManager;
     private String encodedImage;
     private FirebaseFirestore database;
-
+    private int selectLanguage;
+    private String language;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,7 +101,75 @@ public class SettingActivity extends AppCompatActivity {
             builder.show();
 
         });
+        binding.buttonLanguage.setOnClickListener(v -> {
+
+            final String[] languages = {getString(R.string.english), getString(R.string.vietnamese)};
+            AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+            builder.setTitle(R.string.select_language);
+            int checkedItem = 0;
+            if(preferenceManager.getString(Constants.KEY_STATUS_LANGUAGE) == "vi")
+                checkedItem = 1;
+            builder.setSingleChoiceItems(languages, checkedItem, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    selectLanguage = i;
+                }
+            });
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if(selectLanguage == 0) {
+                        language = "en";
+                    }
+                    if(selectLanguage == 1) {
+                        language = "vi";
+                    }
+                    if(language == "" || language == null) {
+                        language = "en";
+                    }
+                    // Cập nhật trạng thái ngôn ngữ
+                    preferenceManager.putString(Constants.KEY_STATUS_LANGUAGE, language);
+                    // Thay đổi ngôn ngữ
+                    setLocale(language);
+                    Toast.makeText(SettingActivity.this, getString(R.string.success_update_language), Toast.LENGTH_SHORT).show();
+                    dialogInterface.dismiss();
+                }
+            });
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            builder.show();
+        });
     }
+
+    private void setLocale(String language) {
+        Resources resources = getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        Configuration configuration = resources.getConfiguration();
+        configuration.locale = new Locale(language);
+        resources.updateConfiguration(configuration, metrics);
+        onConfigurationChanged(configuration);
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Sau khi thay đổi ngôn ngữ, cập nhật dữ liệu trên activity hiện thời
+        // Cách 1
+//        binding.textDarkMode.setText(R.string.dark_mode);
+//        binding.textChangePass.setText(R.string.change_password);
+//        binding.textLanguage.setText(R.string.language);
+//        binding.textLogOut.setText(R.string.log_out);
+        // Cách 2
+        Intent intent = new Intent(this, SettingActivity.class);
+        startActivity(intent);
+        finish();
+
+    }
+
     private final ActivityResultLauncher<Intent> pickImage = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {

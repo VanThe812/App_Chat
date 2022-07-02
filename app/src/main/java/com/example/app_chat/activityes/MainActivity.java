@@ -1,12 +1,16 @@
 package com.example.app_chat.activityes;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Toast;
 
@@ -31,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements ConversionListener{
 
@@ -44,9 +49,12 @@ public class MainActivity extends AppCompatActivity implements ConversionListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
         preferenceManager = new PreferenceManager(getApplicationContext());
+        setLanguage();
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+
+        setContentView(binding.getRoot());
+
         init();
         loadUserDetails();
 //        getToken();
@@ -63,6 +71,22 @@ public class MainActivity extends AppCompatActivity implements ConversionListene
         binding.conversionsRCV.setAdapter(recentConversionsAdapter);
         // khởi tạo FirebaseFirestore
         database = FirebaseFirestore.getInstance();
+    }
+
+    private void setLanguage() {
+        setLocale(preferenceManager.getString(Constants.KEY_STATUS_LANGUAGE));
+    }
+    private void setLocale(String language) {
+        Resources resources = getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        Configuration configuration = resources.getConfiguration();
+        configuration.locale = new Locale(language);
+        resources.updateConfiguration(configuration, metrics);
+        onConfigurationChanged(configuration);
+    }
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 
     private void setListeners() {
