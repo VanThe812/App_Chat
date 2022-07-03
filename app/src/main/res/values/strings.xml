@@ -49,4 +49,10 @@
     <string name="vietnamese">Vietnamese</string>
     <string name="select_language">Select language</string>
     <string name="success_update_language">Successfully updated language</string>
+    <string name="password_new">Password new</string>
+    <string name="re_enter_old_password">Re-enter old password</string>
+    <string name="old_pass_cannot_blank">Old password cannot be blank</string>
+    <string name="new_pass_cannot_blank">New password cannot be blank</string>
+    <string name="old_pass_is_incorrect">Old password is incorrect</string>
+    <string name="change_pass_success">Change password successfully</string>
 </resources>

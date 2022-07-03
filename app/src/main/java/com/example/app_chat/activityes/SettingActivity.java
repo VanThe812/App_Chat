@@ -6,22 +6,30 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.example.app_chat.R;
 import com.example.app_chat.databinding.ActivitySettingBinding;
+import com.example.app_chat.databinding.LayoutChangePasswordBinding;
+import com.example.app_chat.databinding.LayoutNicknameBinding;
 import com.example.app_chat.utilities.Constants;
 import com.example.app_chat.utilities.PreferenceManager;
 import com.google.firebase.firestore.DocumentReference;
@@ -142,6 +150,47 @@ public class SettingActivity extends AppCompatActivity {
                 }
             });
             builder.show();
+        });
+        binding.buttonChangePassword.setOnClickListener(v -> {
+            final Dialog dialog = new Dialog(this);
+//            LayoutNicknameBinding layoutNicknameBinding;
+            LayoutChangePasswordBinding layoutChangePasswordBinding;
+            layoutChangePasswordBinding = LayoutChangePasswordBinding.inflate(getLayoutInflater());
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setContentView(layoutChangePasswordBinding.getRoot());
+            dialog.show();
+            Window window = dialog.getWindow();
+            if(window == null){
+                return;
+            }
+            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+            WindowManager.LayoutParams windowAttributes = window.getAttributes();
+            windowAttributes.gravity = Gravity.CENTER;
+            window.setAttributes(windowAttributes);
+
+            layoutChangePasswordBinding.buttonCancel.setOnClickListener(view -> dialog.dismiss());
+            layoutChangePasswordBinding.buttonSave.setOnClickListener(view -> {
+                if(layoutChangePasswordBinding.inputPasswordOld.getText().toString().trim().isEmpty()) {
+                    showToast(getString(R.string.old_pass_cannot_blank));
+                } else if(layoutChangePasswordBinding.inputPasswordNew.getText().toString().trim().isEmpty()) {
+                    showToast(getString(R.string.new_pass_cannot_blank));
+                } else if(!layoutChangePasswordBinding.inputPasswordOld.getText().toString().trim().equals(preferenceManager.getString(Constants.KEY_PASSWORD))) {
+                    showToast(getString(R.string.old_pass_is_incorrect));
+                } else {
+                    DocumentReference documentReference =
+                        database.collection(Constants.KEY_COLLECTION_USERS)
+                                .document(preferenceManager.getString(Constants.KEY_USER_ID));
+                    documentReference.update(
+                            Constants.KEY_PASSWORD, layoutChangePasswordBinding.inputPasswordNew.getText().toString().trim()
+                    );
+                    preferenceManager.putString(Constants.KEY_PASSWORD, layoutChangePasswordBinding.inputPasswordNew.getText().toString().trim());
+                    showToast(getString(R.string.change_pass_success));
+                    dialog.dismiss();
+                }
+            });
+
         });
     }
 
