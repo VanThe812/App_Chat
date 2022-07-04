@@ -158,9 +158,6 @@ public class NicknameActivity extends AppCompatActivity implements NicknameListe
                                         }
                                     });
 
-//                            int numberPeople = Integer.parseInt(task.getResult().get(Constants.KEY_NUMBER_PEOPLE).toString());
-//                            for ()
-//                            Toast.makeText(this, ""+task.getResult().toString(), Toast.LENGTH_SHORT).show();
                         }
 
 

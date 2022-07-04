@@ -88,7 +88,7 @@ public class SettingActivity extends AppCompatActivity {
         binding.imageProfile.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
             builder.setTitle(R.string.confirm);
-            builder.setMessage(R.string.are_you_sure_change_profile_picture);
+            builder.setMessage(R.string.are_you_sure_change_picture_group_chat);
             builder.setCancelable(false);
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
@@ -153,7 +153,6 @@ public class SettingActivity extends AppCompatActivity {
         });
         binding.buttonChangePassword.setOnClickListener(v -> {
             final Dialog dialog = new Dialog(this);
-//            LayoutNicknameBinding layoutNicknameBinding;
             LayoutChangePasswordBinding layoutChangePasswordBinding;
             layoutChangePasswordBinding = LayoutChangePasswordBinding.inflate(getLayoutInflater());
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -238,7 +237,7 @@ public class SettingActivity extends AppCompatActivity {
                                     Constants.KEY_IMAGE, encodedImage
                             );
                             preferenceManager.putString(Constants.KEY_IMAGE, encodedImage);
-                            showToast("Ban da cap nhat anh dai dien thanh cong");
+                            showToast(getString(R.string.you_have_success_update_your_profile_picture));
                         }catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
@@ -246,6 +245,7 @@ public class SettingActivity extends AppCompatActivity {
                 }
             }
     );
+
     private String encodeImage(Bitmap bitmap) {
         int previewWidth = 150;
         int previewHeight = bitmap.getHeight() * previewWidth / bitmap.getWidth();

@@ -20,7 +20,7 @@
     <string name="custom">Tùy chỉnh</string>
     <string name="other_action">Hành động khác</string>
     <string name="delete_chat">Xóa đoạn chat</string>
-    <string name="create_a_chat_group_with_diu">Tạo nhóm với</string>
+    <string name="create_a_chat_group_with">Tạo nhóm với</string>
     <string name="nickname">Biệt danh</string>
     <string name="background">Chủ đề</string>
     <string name="success_background_update">Cập nhật chủ đề thành công</string>
@@ -46,4 +46,17 @@
     <string name="success_nickname_change">Thay đổi biệt danh thành công</string>
     <string name="create_a_group">Đã tạo nhóm</string>
     <string name="are_you_sure_change_profile_picture">Bạn có chắc chắn muốn thay đổi ảnh hồ sơ của mình không?</string>
+    <string name="english">Tiếng Anh</string>
+    <string name="vietnamese">Việt Nam</string>
+    <string name="select_language">Chọn ngôn ngữ</string>
+    <string name="success_update_language">Cập nhật ngôn ngữ thành công</string>
+    <string name="password_new">Mật khẩu mới</string>
+    <string name="re_enter_old_password">Nhập lại mật khẩu cũ</string>
+    <string name="old_pass_cannot_blank">Mật khẩu cũ không được để trống</string>
+    <string name="new_pass_cannot_blank">Mật khẩu mới không được để trống</string>
+    <string name="old_pass_is_incorrect">Mật khẩu cũ không đúng</string>
+    <string name="change_pass_success">Thay đổi mật khẩu thành công</string>
+    <string name="are_you_sure_change_picture_group_chat">Bạn có chắc chắn muốn thay đổi ảnh của nhóm trò chuyện không?</string>
+    <string name="you_have_success_update_your_profile_picture">Bạn đã cập nhật ảnh đại diện thành công</string>
+    <string name="leave_group">Rời khỏi nhóm</string>
 </resources>
